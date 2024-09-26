@@ -1,6 +1,6 @@
 # Documentation
 
-### Lsrpc V4 (`/oxen/v4/lsrpc`)
+### Lsrpc V4 (`/beldex/v4/lsrpc`)
 - Endpoint: `/register`
 - Method: **POST**
 - Header: `[Content-Type: application/json]`

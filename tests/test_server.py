@@ -28,7 +28,7 @@ class ServerTests(unittest.TestCase):
         ciphertext = b'...'
         ciphertext_length = len(ciphertext).to_bytes(4, "little")
         data = ciphertext_length + ciphertext + body_as_string.encode('utf-8')
-        response = self.app.post('/loki/v2/lsrpc', data=data)
+        response = self.app.post('/beldex/v2/lsrpc', data=data)
         self.assertEqual(response.status_code, 400)
 
     def test_1_get_statistics_data(self):
@@ -40,13 +40,13 @@ class ServerTests(unittest.TestCase):
 
     def test_2_register(self):
         args = {HTTP.RegistrationRequest.TOKEN: TEST_TOKEN_0,
-                HTTP.RegistrationRequest.PUBKEY: TEST_SESSION_ID}
+                HTTP.RegistrationRequest.PUBKEY: TEST_BCHAT_ID}
         register_v2(args)
-        test_device_in_cache = self.database_helper.device_cache.get(TEST_SESSION_ID)
+        test_device_in_cache = self.database_helper.device_cache.get(TEST_BCHAT_ID)
         self.assertTrue(TEST_TOKEN_0 in test_device_in_cache.tokens)
 
     def test_3_notify(self):
-        args = {HTTP.NotificationRequest.SEND_TO: TEST_SESSION_ID,
+        args = {HTTP.NotificationRequest.SEND_TO: TEST_BCHAT_ID,
                 HTTP.NotificationRequest.DATA: TEST_DATA}
         notify(args)
         message_in_queue = self.notification_helper.message_queue.get()
@@ -55,31 +55,31 @@ class ServerTests(unittest.TestCase):
     def test_4_unregister(self):
         args = {HTTP.RegistrationRequest.TOKEN: TEST_TOKEN_0}
         unregister(args)
-        test_device_in_cache = self.database_helper.device_cache.get(TEST_SESSION_ID)
+        test_device_in_cache = self.database_helper.device_cache.get(TEST_BCHAT_ID)
         self.assertFalse(TEST_TOKEN_0 in test_device_in_cache.tokens)
 
     def test_5_subscribe_closed_group(self):
         args = {HTTP.SubscriptionRequest.CLOSED_GROUP: TEST_CLOSED_GROUP_ID,
-                HTTP.SubscriptionRequest.PUBKEY: TEST_SESSION_ID}
+                HTTP.SubscriptionRequest.PUBKEY: TEST_BCHAT_ID}
         subscribe_closed_group(args)
         test_closed_group_in_cache = self.database_helper.closed_group_cache.get(TEST_CLOSED_GROUP_ID)
-        self.assertTrue(TEST_SESSION_ID in test_closed_group_in_cache.members)
+        self.assertTrue(TEST_BCHAT_ID in test_closed_group_in_cache.members)
 
     def test_6_unsubscribe_closed_group(self):
         args = {HTTP.SubscriptionRequest.CLOSED_GROUP: TEST_CLOSED_GROUP_ID,
-                HTTP.SubscriptionRequest.PUBKEY: TEST_SESSION_ID}
+                HTTP.SubscriptionRequest.PUBKEY: TEST_BCHAT_ID}
         unsubscribe_closed_group(args)
         test_closed_group_in_cache = self.database_helper.closed_group_cache.get(TEST_CLOSED_GROUP_ID)
-        self.assertFalse(TEST_SESSION_ID in test_closed_group_in_cache.members)
+        self.assertFalse(TEST_BCHAT_ID in test_closed_group_in_cache.members)
 
     def test_7_register_legacy_groups_only(self):
         args = {HTTP.RegistrationRequest.TOKEN: TEST_TOKEN_0,
-                HTTP.RegistrationRequest.PUBKEY: TEST_SESSION_ID,
+                HTTP.RegistrationRequest.PUBKEY: TEST_BCHAT_ID,
                 HTTP.RegistrationRequest.DEVICE_TYPE: TEST_DEVICE_TYPE,
                 HTTP.SubscriptionRequest.CLOSED_GROUPS: f'[{TEST_CLOSED_GROUP_ID}, {TEST_CLOSED_GROUP_ID_2}]'}
         register_legacy_groups_only(args)
         self.assertEqual(len(self.database_helper.closed_group_cache), 2)
-        test_device_in_cache = self.database_helper.device_cache.get(TEST_SESSION_ID)
+        test_device_in_cache = self.database_helper.device_cache.get(TEST_BCHAT_ID)
         self.assertTrue(test_device_in_cache.legacy_groups_only)
 
 

@@ -45,59 +45,59 @@ class PushNotificationHelperV2(metaclass=Singleton):
             device.remove_token(device_token)
             del self.database_helper.token_device_mapping[device_token]
             device.save_to_cache(self.database_helper)
-            return device.session_id
+            return device.bchat_id
         return None
 
-    def register(self, device_token, session_id, device_type, legacy_groups_only=False):
-        self.latest_activity_timestamp[session_id] = time.time()
+    def register(self, device_token, bchat_id, device_type, legacy_groups_only=False):
+        self.latest_activity_timestamp[bchat_id] = time.time()
 
         if device_token in self.database_helper.token_device_mapping.keys():
             device = self.database_helper.token_device_mapping[device_token]
-            if device.session_id == session_id:
+            if device.bchat_id == bchat_id:
                 device.update_legacy_groups_only(legacy_groups_only)
                 return
             else:
                 self.remove_device_token(device_token)
 
-        device = self.database_helper.get_device(session_id)
-        # When there is no record for either the session id or the token
+        device = self.database_helper.get_device(bchat_id)
+        # When there is no record for either the bchat id or the token
         if device is None:
-            self.logger.info(f"New session id registered {session_id}.")
+            self.logger.info(f"New Bchat id registered {bchat_id}.")
             device = Device()
-            device.session_id = session_id
+            device.bchat_id = bchat_id
 
         device.update_legacy_groups_only(legacy_groups_only)
 
-        # When an existed session id adds a new device
+        # When an existed bchat id adds a new device
         device.add_token(Device.Token(device_token, device_type))
         device.save_to_cache(self.database_helper)
         self.push_fails[device_token] = 0
 
     def unregister(self, device_token):
-        session_id = self.remove_device_token(device_token)
-        return session_id
+        bchat_id = self.remove_device_token(device_token)
+        return bchat_id
 
-    def register_legacy_groups_only(self, device_token, session_id, device_type, closed_group_ids):
-        self.register(device_token, session_id, device_type, True)
+    def register_legacy_groups_only(self, device_token, bchat_id, device_type, closed_group_ids):
+        self.register(device_token, bchat_id, device_type, True)
         for closed_group_id in closed_group_ids:
-            self.subscribe_closed_group(closed_group_id, session_id)
+            self.subscribe_closed_group(closed_group_id, bchat_id)
 
-    def subscribe_closed_group(self, closed_group_id, session_id):
-        self.latest_activity_timestamp[session_id] = time.time()
+    def subscribe_closed_group(self, closed_group_id, bchat_id):
+        self.latest_activity_timestamp[bchat_id] = time.time()
 
         closed_group = self.database_helper.get_closed_group(closed_group_id)
         if closed_group is None:
             closed_group = ClosedGroup()
             closed_group.closed_group_id = closed_group_id
-        closed_group.add_member(session_id)
+        closed_group.add_member(bchat_id)
         closed_group.save_to_cache(self.database_helper)
 
-    def unsubscribe_closed_group(self, closed_group_id, session_id):
-        self.latest_activity_timestamp[session_id] = time.time()
+    def unsubscribe_closed_group(self, closed_group_id, bchat_id):
+        self.latest_activity_timestamp[bchat_id] = time.time()
 
         closed_group = self.database_helper.get_closed_group(closed_group_id)
         if closed_group:
-            closed_group.remove_member(session_id)
+            closed_group.remove_member(bchat_id)
             closed_group.save_to_cache(self.database_helper)
             return closed_group_id
         return None
@@ -116,10 +116,10 @@ class PushNotificationHelperV2(metaclass=Singleton):
 
     async def send_push_notification(self):
 
-        def generate_notifications(session_ids):
+        def generate_notifications(bchat_ids):
 
             def generate_ios_notification(encrypted_data, device_token):
-                alert = {'title': 'Session',
+                alert = {'title': 'Bchat',
                          'body': 'You\'ve got a new message'}
                 aps = {'alert': alert,
                        'badge': 1,
@@ -151,8 +151,8 @@ class PushNotificationHelperV2(metaclass=Singleton):
                 )
                 notifications_huawei.append(notification)
 
-            for session_id in session_ids:
-                device_for_push = self.database_helper.get_device(session_id)
+            for bchat_id in bchat_ids:
+                device_for_push = self.database_helper.get_device(bchat_id)
                 if device_for_push:
                     for token in device_for_push.tokens:
                         if token.device_type == DeviceType.iOS:
@@ -255,7 +255,7 @@ class PushNotificationHelperV2(metaclass=Singleton):
         self.logger.info(f"Push {len(notifications)} notifications for iOS.")
         self.stats_data.increment_ios_pn(len(notifications))
         if self.apns is None:
-            self.apns = APNs(client_cert=Environment.CERT_FILE, use_sandbox=Environment.debug_mode, topic='com.loki-project.loki-messenger')
+            self.apns = APNs(client_cert=Environment.CERT_FILE, use_sandbox=Environment.debug_mode, topic='com.beldex.bchat')
         send_requests = [send_request(notification) for notification in notifications]
         await asyncio.wait(send_requests)
 

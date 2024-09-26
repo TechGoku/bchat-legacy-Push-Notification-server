@@ -43,8 +43,8 @@ class Device:
         def __hash__(self):
             return str(self.value).__hash__()
 
-    def __init__(self, session_id=None, legacy_groups_only=False):
-        self.session_id = session_id
+    def __init__(self, bchat_id=None, legacy_groups_only=False):
+        self.bchat_id = bchat_id
         self.tokens = set()
         self.legacy_groups_only = legacy_groups_only
         self.needs_to_be_updated = False
@@ -58,7 +58,7 @@ class Device:
             if isinstance(token.device_type, str):
                 LokiLogger().logger.error("Device_Type is String.")
                 continue
-            rows.append((self.session_id, token.value, token.device_type.value, self.legacy_groups_only))
+            rows.append((self.bchat_id, token.value, token.device_type.value, self.legacy_groups_only))
         self.needs_to_be_updated = False
         return rows
 
@@ -82,7 +82,7 @@ class Device:
             self.needs_to_be_updated = True
 
     def save_to_cache(self, db_helper):
-        db_helper.device_cache[self.session_id] = self
+        db_helper.device_cache[self.bchat_id] = self
         for token in self.tokens:
             db_helper.token_device_mapping[token.value] = self
 

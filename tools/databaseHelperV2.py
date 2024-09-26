@@ -9,13 +9,13 @@ from tools.lokiLogger import LokiLogger
 
 class DatabaseHelperV2(metaclass=Singleton):
     def __init__(self):
-        self.database = '../session_pn_server.db'
-        self.backup_database = '../session_pn_server_backup.db'
+        self.database = '../bchat_pn_server.db'
+        self.backup_database = '../bchat_pn_server_backup.db'
         self.logger = LokiLogger().logger
         self.last_backup = datetime.now()
         self.last_flush = datetime.now()
         self.task_queue = TaskQueue()
-        self.device_cache = {}  # {session_id: Device}
+        self.device_cache = {}  # {bchat_id: Device}
         self.token_device_mapping = {}  # {token: Device}
         self.closed_group_cache = {}  # {closed_group_id: ClosedGroup}
         self.create_tables_if_needed()
@@ -90,13 +90,13 @@ class DatabaseHelperV2(metaclass=Singleton):
         cursor.execute(query)
         device_token_rows = cursor.fetchall()
         for row in device_token_rows:
-            session_id = row[0]
+            bchat_id = row[0]
             device_type = DeviceType(row[2]) if row[2] is not None else None
             token = Device.Token(row[1], device_type)
             legacy_groups_only = bool(row[3]) if row[3] is not None else False
-            device = self.get_device(session_id) or Device(session_id, legacy_groups_only)
+            device = self.get_device(bchat_id) or Device(bchat_id, legacy_groups_only)
             device.tokens.add(token)  # Won't trigger needs_to_be_updated
-            self.device_cache[session_id] = device
+            self.device_cache[bchat_id] = device
             self.token_device_mapping[token.value] = device
 
         # Populate closed group members mapping cache
@@ -158,8 +158,8 @@ class DatabaseHelperV2(metaclass=Singleton):
             db_connection.close()
             self.logger.info(f"End of flush at {datetime.now()}.")
 
-    def get_device(self, session_id):
-        return self.device_cache.get(session_id, None)
+    def get_device(self, bchat_id):
+        return self.device_cache.get(bchat_id, None)
 
     def get_closed_group(self, closed_group_id):
         return self.closed_group_cache.get(closed_group_id, None)
@@ -212,7 +212,7 @@ class DatabaseHelperV2(metaclass=Singleton):
         result = {PushNotificationStats.ResponseKey.DATA: data,
                   PushNotificationStats.ResponseKey.IOS_DEVICE_NUMBER: ios,
                   PushNotificationStats.ResponseKey.ANDROID_DEVICE_NUMBER: android,
-                  PushNotificationStats.ResponseKey.TOTAL_SESSION_ID_NUMBER: total}
+                  PushNotificationStats.ResponseKey.TOTAL_BCHAT_ID_NUMBER: total}
 
         cursor.close()
         db_connection.close()
@@ -220,7 +220,7 @@ class DatabaseHelperV2(metaclass=Singleton):
 
     def get_device_number(self):
         ios, android, total = 0, 0, 0
-        for session_id, device in self.device_cache.items():
+        for bchat_id, device in self.device_cache.items():
             if len(device.tokens) > 0:
                 total += 1
                 for token in device.tokens:

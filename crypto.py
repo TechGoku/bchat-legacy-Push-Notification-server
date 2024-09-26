@@ -21,5 +21,6 @@ else:
     raise Exception('Could not find privkey file')
 
 _junk_parser = pyonionreq.junk.Parser(privkey=privkey.encode(), pubkey=privkey.public_key.encode())
+print(privkey.public_key.encode().hex())
 parse_junk = _junk_parser.parse_junk
 

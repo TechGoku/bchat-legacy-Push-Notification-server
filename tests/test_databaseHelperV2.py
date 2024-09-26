@@ -26,17 +26,17 @@ class DatabaseHelperV2Tests(unittest.TestCase):
 
     def test_1_flush(self):
         test_device = Device()
-        test_device.session_id = TEST_SESSION_ID
+        test_device.bchat_id = TEST_BCHAT_ID
         test_device.add_token(Device.Token(TEST_TOKEN_0, DeviceType.Unknown))
         test_device.legacy_groups_only = True
         test_device.save_to_cache(self.databaseHelper)
 
-        test_device_in_cache = self.databaseHelper.get_device(TEST_SESSION_ID)
+        test_device_in_cache = self.databaseHelper.get_device(TEST_BCHAT_ID)
         self.assertFalse(test_device_in_cache is None)
 
         test_closed_group = ClosedGroup()
         test_closed_group.closed_group_id = TEST_CLOSED_GROUP_ID
-        test_closed_group.add_member(TEST_SESSION_ID)
+        test_closed_group.add_member(TEST_BCHAT_ID)
         test_closed_group.save_to_cache(self.databaseHelper)
 
         test_closed_group_in_cache = self.databaseHelper.get_closed_group(TEST_CLOSED_GROUP_ID)
@@ -50,7 +50,7 @@ class DatabaseHelperV2Tests(unittest.TestCase):
         self.databaseHelper.closed_group_cache.clear()
         self.databaseHelper.populate_cache()
 
-        test_device_in_db = self.databaseHelper.get_device(TEST_SESSION_ID)
+        test_device_in_db = self.databaseHelper.get_device(TEST_BCHAT_ID)
         self.assertFalse(test_device_in_db is None)
 
         test_closed_group_in_db = self.databaseHelper.get_closed_group(TEST_CLOSED_GROUP_ID)
@@ -75,12 +75,12 @@ class DatabaseHelperV2Tests(unittest.TestCase):
 
     def test_3_adding_duplicated_token(self):
         test_device = Device()
-        test_device.session_id = TEST_SESSION_ID
+        test_device.bchat_id = TEST_BCHAT_ID
         test_device.add_token(Device.Token(TEST_TOKEN_0, DeviceType.Unknown))
         test_device.save_to_cache(self.databaseHelper)
         self.databaseHelper.flush()
 
-        test_device_in_cache = self.databaseHelper.get_device(TEST_SESSION_ID)
+        test_device_in_cache = self.databaseHelper.get_device(TEST_BCHAT_ID)
         test_device_in_cache.add_token(Device.Token(TEST_TOKEN_0, DeviceType.Unknown))
         self.assertFalse(test_device_in_cache.needs_to_be_updated)
 

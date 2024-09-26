@@ -44,18 +44,18 @@ runner = TaskRunner()
 
 def register_v2(args):
     device_token = None
-    session_id = None
+    bchat_id = None
     if HTTP.RegistrationRequest.TOKEN in args:
         device_token = args[HTTP.RegistrationRequest.TOKEN]
     if HTTP.RegistrationRequest.PUBKEY in args:
-        session_id = args[HTTP.RegistrationRequest.PUBKEY]
+        bchat_id = args[HTTP.RegistrationRequest.PUBKEY]
     if HTTP.RegistrationRequest.DEVICE_TYPE in args:
         device_type = DeviceType(args[HTTP.RegistrationRequest.DEVICE_TYPE])
     else:
         device_type = DeviceType.iOS if is_ios_device_token(device_token) else DeviceType.Android
 
-    if device_token and session_id:
-        PushNotificationHelperV2().register(device_token, session_id, device_type)
+    if device_token and bchat_id:
+        PushNotificationHelperV2().register(device_token, bchat_id, device_type)
         return 1, HTTP.Response.SUCCESS
     else:
         LokiLogger().logger.info("Onion routing register error")
@@ -68,11 +68,11 @@ def unregister(args):
         device_token = args[HTTP.RegistrationRequest.TOKEN]
 
     if device_token:
-        session_id = PushNotificationHelperV2().unregister(device_token)
-        if session_id:
+        bchat_id = PushNotificationHelperV2().unregister(device_token)
+        if bchat_id:
             return 1, HTTP.Response.SUCCESS
         else:
-            return 0, "Session id was not registered before."
+            return 0, "Bchat id was not registered before."
     else:
         LokiLogger().logger.info("Onion routing unregister error")
         raise Exception(HTTP.Response.PARA_MISSING)
@@ -80,12 +80,12 @@ def unregister(args):
 
 def register_legacy_groups_only(args):
     device_token = None
-    session_id = None
+    bchat_id = None
     closed_group_ids = []
     if HTTP.RegistrationRequest.TOKEN in args:
         device_token = args[HTTP.RegistrationRequest.TOKEN]
     if HTTP.RegistrationRequest.PUBKEY in args:
-        session_id = args[HTTP.RegistrationRequest.PUBKEY]
+        bchat_id = args[HTTP.RegistrationRequest.PUBKEY]
     if HTTP.RegistrationRequest.DEVICE_TYPE in args:
         device_type = DeviceType(args[HTTP.RegistrationRequest.DEVICE_TYPE])
     else:
@@ -93,8 +93,8 @@ def register_legacy_groups_only(args):
     if HTTP.SubscriptionRequest.CLOSED_GROUPS in args:
         closed_group_ids = args[HTTP.SubscriptionRequest.CLOSED_GROUPS]
 
-    if device_token and session_id:
-        PushNotificationHelperV2().register_legacy_groups_only(device_token, session_id, device_type, closed_group_ids)
+    if device_token and bchat_id:
+        PushNotificationHelperV2().register_legacy_groups_only(device_token, bchat_id, device_type, closed_group_ids)
         return 1, HTTP.Response.SUCCESS
     else:
         LokiLogger().logger.info("Onion routing register closed groups only error")
@@ -103,14 +103,14 @@ def register_legacy_groups_only(args):
 
 def subscribe_closed_group(args):
     closed_group_id = None
-    session_id = None
+    bchat_id = None
     if HTTP.SubscriptionRequest.PUBKEY in args:
-        session_id = args[HTTP.SubscriptionRequest.PUBKEY]
+        bchat_id = args[HTTP.SubscriptionRequest.PUBKEY]
     if HTTP.SubscriptionRequest.CLOSED_GROUP in args:
         closed_group_id = args[HTTP.SubscriptionRequest.CLOSED_GROUP]
 
-    if closed_group_id and session_id:
-        PushNotificationHelperV2().subscribe_closed_group(closed_group_id, session_id)
+    if closed_group_id and bchat_id:
+        PushNotificationHelperV2().subscribe_closed_group(closed_group_id, bchat_id)
         return 1, HTTP.Response.SUCCESS
     else:
         LokiLogger().logger.info("Onion routing subscribe closed group error")
@@ -119,14 +119,14 @@ def subscribe_closed_group(args):
 
 def unsubscribe_closed_group(args):
     closed_group_id = None
-    session_id = None
+    bchat_id = None
     if HTTP.SubscriptionRequest.PUBKEY in args:
-        session_id = args[HTTP.SubscriptionRequest.PUBKEY]
+        bchat_id = args[HTTP.SubscriptionRequest.PUBKEY]
     if HTTP.SubscriptionRequest.CLOSED_GROUP in args:
         closed_group_id = args[HTTP.SubscriptionRequest.CLOSED_GROUP]
 
-    if closed_group_id and session_id:
-        closed_group = PushNotificationHelperV2().unsubscribe_closed_group(closed_group_id, session_id)
+    if closed_group_id and bchat_id:
+        closed_group = PushNotificationHelperV2().unsubscribe_closed_group(closed_group_id, bchat_id)
         if closed_group:
             return 1, HTTP.Response.SUCCESS
         else:
@@ -137,14 +137,14 @@ def unsubscribe_closed_group(args):
 
 
 def notify(args):
-    session_id = None
+    bchat_id = None
     data = None
     if HTTP.NotificationRequest.SEND_TO in args:
-        session_id = args[HTTP.NotificationRequest.SEND_TO]
+        bchat_id = args[HTTP.NotificationRequest.SEND_TO]
     if HTTP.NotificationRequest.DATA in args:
         data = args[HTTP.NotificationRequest.DATA]
 
-    if session_id and data:
+    if bchat_id and data:
         PushNotificationHelperV2().add_message_to_queue(args)
         return 1, HTTP.Response.SUCCESS
     else:
@@ -262,7 +262,7 @@ def onion_request_body_handler(body):
     return jsonify({HTTP.Response.RESULT: encrypt(response, symmetric_key)})
 
 
-@app.route('/loki/v2/lsrpc', methods=['POST'])
+@app.route('/beldex/v2/lsrpc', methods=['POST'])
 def onion_request_v2():
     body = {}
     if request.data:
@@ -272,7 +272,7 @@ def onion_request_v2():
     return onion_request_body_handler(body)
 
 
-@app.route('/oxen/v4/lsrpc', methods=['POST'])
+@app.route('/beldex/v4/lsrpc', methods=['POST'])
 def onion_request_v4():
     junk = None
 
@@ -335,7 +335,7 @@ if __name__ == '__main__':
     logging.getLogger('werkzeug').disabled = not Environment.debug_mode
     logging.getLogger('tornado.access').disabled = not Environment.debug_mode
     runner.run_tasks()
-    port = 3000 if Environment.debug_mode else 5000
+    port = 2000 if Environment.debug_mode else 5000
     http_server = HTTPServer(WSGIContainer(app), no_keep_alive=True)
     http_server.listen(port)
     loop.start()

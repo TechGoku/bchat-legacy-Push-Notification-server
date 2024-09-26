@@ -44,9 +44,9 @@ class HTTP:
 
 class Environment:
 
-    CERT_FILE = 'cert.pem'
+    CERT_FILE = 'cert12.pem'
     PRIVKEY_FILE = 'x25519-priv.pem'
-    FIREBASE_TOKEN = 'loki-5a81e-firebase-adminsdk-7plup-0698317995.json'
+    FIREBASE_TOKEN = 'bchat-android-ios-firebase.json'
 
     HUAWEI_APP_ID = "107146885"
     HUAWEI_APP_SECRET = "40da17ca27eab7565da0ce381bd6cf7690f9c442322b3939b4ea89dcec3a0602"

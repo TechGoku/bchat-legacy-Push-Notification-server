@@ -9,7 +9,7 @@ class PushNotificationStats:
         DATA = 'data'
         IOS_DEVICE_NUMBER = 'ios_device_number'
         ANDROID_DEVICE_NUMBER = 'android_device_number'
-        TOTAL_SESSION_ID_NUMBER = 'total_session_id_number'
+        TOTAL_BCHAT_ID_NUMBER = 'total_bchat_id_number'
 
     class Column:
         START_DATE = 'start_date'
