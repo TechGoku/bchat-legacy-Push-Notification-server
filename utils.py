@@ -57,7 +57,7 @@ def make_symmetric_key(client_pubkey):
 
     server_privkey_bytes = bytes.fromhex(server_privkey)
     client_pubkey_bytes = bytes.fromhex(client_pubkey)
-    salt = 'LOKI'
+    salt = 'BELDEX'
     shared_secret = _curve25519.make_shared(server_privkey_bytes, client_pubkey_bytes)
     return bytes.fromhex(hmac.new(salt.encode('utf-8'), shared_secret, hashlib.sha256).hexdigest())
 
