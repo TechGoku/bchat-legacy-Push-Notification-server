@@ -179,7 +179,7 @@ class PushNotificationHelperV2(metaclass=Singleton):
             recipient = message[HTTP.NotificationRequest.SEND_TO]
             device = self.database_helper.get_device(recipient)
             closed_group = self.database_helper.get_closed_group(recipient)
-            if device and not device.legacy_groups_only:
+            if device:
                 self.stats_data.increment_deduplicated_one_on_one_message(1)
                 generate_notifications([recipient])
             elif closed_group:
