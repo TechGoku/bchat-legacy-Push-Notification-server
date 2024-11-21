@@ -3,7 +3,6 @@ import os
 import pyonionreq.junk
 from const import *
 
-# Copied from https://github.com/oxen-io/session-file-server/blob/dev/fileserver/crypto.py
 
 
 if os.path.exists(Environment.PRIVKEY_FILE):

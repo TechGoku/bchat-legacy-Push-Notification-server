@@ -83,7 +83,7 @@
     }
 ```
 
-### Lsprc V2 (`/loki/v2/lsrpc`)
+### Lsprc V2 (`/beldex/v2/lsrpc`)
 
 - Same endpoints as Lsrpc V4
 
@@ -121,7 +121,7 @@
     "data": {
         "ios_device_number": Number,
         "android_device_number": Number,
-        "total_session_id_number": Number,
+        "total_bchat_id_number": Number,
         "data": [
                     {
                         "start_date": Date String formated "%Y-%m-%d %H:%M:%S",

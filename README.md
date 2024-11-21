@@ -1,8 +1,8 @@
-# Session Push Notification Server
+# Bchat Legacy Push Notification Server
 
-## This is a python script for Session remote notification service
+## This is a python script for Bchat remote notification service
 
-[API Documentation](https://github.com/oxen-io/session-push-notification-server/blob/master/DOCUMENTATION.md)
+[API Documentation](https://github.com/TechGoku/bchat-legacy-Push-Notification-server/blob/v1/DOCUMENTATION.md)
 
 #### Use Python 3.7
 #### To run the server:
@@ -24,15 +24,15 @@ To start the server, use `python server.py`
 The server is built with [Flask](https://github.com/pallets/flask) and [tornado](https://github.com/tornadoweb/tornado).  
 The server uses APN for iOS push notifications, [aioapns](https://github.com/Fatal1ty/aioapns) to interact with APNs, and FCM for Android push notifications.
 
-Right now the server only receives onion requests through the endpoint `/loki/v2/lsrpc` or `/oxen/v4/lsrpc` for
-- `register`: register a device token associated with a session id
-- `unregister`: unregister a device token from a session id's devices
-- `subscribe_closed_group`: add a session id to a closed group as a member
-- `unsubscribe_closed_group` remove a session id from a closed group members
+Right now the server only receives onion requests through the endpoint `/beldex/v2/lsrpc` or `/beldex/v4/lsrpc` for
+- `register`: register a device token associated with a bchat id
+- `unregister`: unregister a device token from a bchat id's devices
+- `subscribe_closed_group`: add a bchat id to a closed group as a member
+- `unsubscribe_closed_group` remove a bchat id from a closed group members
 - `notify`: send a message from remote notification
 
 The new push notification server works this way:
-- The client (Session Desktop or Mobile app) sends encrypted message data with the recipients' session id to server.
+- The client (Bchat Desktop or Mobile app) sends encrypted message data with the recipients' bchat id to server.
 - The server checks the database to see if the recipients has registered their devices.
 - The server generates and sends the push notification to the devices registered with their tokens.
 
