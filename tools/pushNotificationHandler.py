@@ -206,7 +206,7 @@ class PushNotificationHelperV2(metaclass=Singleton):
         self.stats_data.increment_android_pn(len(notifications))
         results = None
         try:
-            results = messaging.send_all(messages=notifications, app=self.firebase_app)
+            results = messaging.send_each(messages=notifications, app=self.firebase_app)
         except FirebaseError as e:
             self.logger.error(e.cause)
         except Exception as e:
